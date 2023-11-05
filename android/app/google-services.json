@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "960213994968",
+    "project_id": "trans-app-3bfa6",
+    "storage_bucket": "trans-app-3bfa6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:960213994968:android:e327c7462ef6b6ec52f6ad",
+        "android_client_info": {
+          "package_name": "com.example.transaction_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuwi3OsVp5oNm1xp2zjC3C7FPHsO6sRuE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
