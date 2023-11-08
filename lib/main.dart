@@ -8,18 +8,15 @@ import 'package:redux/redux.dart';
 import 'package:transaction_app/app.dart';
 import 'package:transaction_app/app_state.dart';
 import 'package:transaction_app/core/firebase_options.dart';
-import 'package:transaction_app/core/locator/locator.dart';
 import 'package:transaction_app/reducers/app_reducer.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await configureDependencies();
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.grey[900],
     statusBarColor: Colors.grey[900],
   ));
-  await locator.allReady();
 
   final store = Store<AppState>(
     appReducer,

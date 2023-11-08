@@ -1,11 +1,11 @@
 // ignore_for_file: use_build_context_synchronously
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import 'package:transaction_app/actions/actions.dart';
 import 'package:transaction_app/app_state.dart';
+import 'package:transaction_app/core/firestore_worker.dart';
 import 'package:transaction_app/features/main_page/widgets/transaction_item.dart';
 import 'package:transaction_app/models/transaction_type_model.dart';
 import 'package:transaction_app/models/transacton_model.dart';
@@ -23,12 +23,19 @@ class _MainPageState extends State<MainPage> {
   int index = 0;
 
   @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _getData(context);
+    });
+
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return StoreConnector(
         converter: (Store<AppState> store) => store.state.transactions,
         builder: (BuildContext context, List<TransactionModel> transactions) {
-          _getData(context);
-
           return Scaffold(
               bottomNavigationBar: BottomNavigationBar(
                   onTap: (value) => setState(() {
@@ -194,13 +201,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   _getData(BuildContext context) async {
-    final CollectionReference transactionCollection =
-        FirebaseFirestore.instance.collection('transactions');
-    final snapshot = await transactionCollection.get();
-    final data = snapshot.docs
-        .map((event) =>
-            TransactionModel.fromJson(event.data() as Map<String, dynamic>))
-        .toList();
-    StoreProvider.of<AppState>(context).dispatch(LoadTransactionsAction(data));
+    StoreProvider.of<AppState>(context).dispatch(
+        LoadTransactionsAction(await FirestoreWorker.getTransactionData()));
   }
 }

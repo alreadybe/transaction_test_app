@@ -13,13 +13,12 @@ dependencies:
     sdk: flutter
   redux: ^5.0.0 
   cloud_firestore:
-  injectable: ^2.1.1
+  shared_preferences: ^2.2.2
   json_annotation: ^4.7.0
   fl_chart:
   flutter_easyloading: 
   firebase_auth: ^4.1.0
   firebase_core: ^2.1.1
-  get_it:
   flutter_redux: ^0.10.0
   freezed_annotation:
   cupertino_icons: ^1.0.2
@@ -29,7 +28,6 @@ dev_dependencies:
     sdk: flutter
   build_runner: ^2.2.0
   freezed: ^2.0.5
-  injectable_generator: ^2.1.5
   json_serializable: ^6.3.1
   flutter_lints: ^2.0.0
 

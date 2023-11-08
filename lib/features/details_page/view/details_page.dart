@@ -1,8 +1,11 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:redux/redux.dart';
+import 'package:transaction_app/actions/actions.dart';
+import 'package:transaction_app/app_state.dart';
+import 'package:transaction_app/core/firestore_worker.dart';
 import 'package:transaction_app/models/transaction_type_model.dart';
 import 'package:transaction_app/models/transacton_model.dart';
 
@@ -24,58 +27,60 @@ class DetailsPage extends StatelessWidget {
     } else {
       typeName = "Withdrawal";
     }
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.redAccent,
-        onPressed: () async {
-          final transactionCollections =
-              FirebaseFirestore.instance.collection('transactions');
-          final query = await transactionCollections
-              .where('id', isEqualTo: transaction!.id)
-              .get();
-          final itemId = query.docs.first.id;
+    return StoreConnector(
+        converter: (Store<AppState> store) => store.state.transactions,
+        builder: (BuildContext context, List<TransactionModel> transactions) {
+          return Scaffold(
+            floatingActionButton: FloatingActionButton(
+              backgroundColor: Colors.redAccent,
+              onPressed: () => _removeTransaction(context),
+              child: const Icon(Icons.delete),
+            ),
+            appBar: AppBar(
+              centerTitle: true,
+              title: const Text("Transaction Detail"),
+            ),
+            body: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(transaction!.date),
+                        Text('№ ${transaction!.id}')
+                      ],
+                    ),
+                    Text(
+                      typeName,
+                      style: const TextStyle(fontSize: 20),
+                    ),
+                    const SizedBox(height: 50),
+                    Text(
+                      'Amount: ${transaction!.amount}',
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Fee: ${transaction!.fee}',
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Total: ${transaction!.total}',
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                  ]),
+            ),
+          );
+        });
+  }
 
-          transactionCollections
-              .doc(itemId) // <-- Doc ID to be deleted.
-              .delete() // <-- Delete
-              .catchError(
-                  (error) => EasyLoading.showToast('Something went wrong'));
-          Navigator.pop(context);
-        },
-        child: const Icon(Icons.delete),
-      ),
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text("Transaction Detail"),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [Text(transaction!.date), Text('№ ${transaction!.id}')],
-          ),
-          Text(
-            typeName,
-            style: const TextStyle(fontSize: 20),
-          ),
-          const SizedBox(height: 50),
-          Text(
-            'Amount: ${transaction!.amount}',
-            style: const TextStyle(fontSize: 18),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'Fee: ${transaction!.fee}',
-            style: const TextStyle(fontSize: 18),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'Total: ${transaction!.total}',
-            style: const TextStyle(fontSize: 18),
-          ),
-        ]),
-      ),
-    );
+  _removeTransaction(BuildContext context) async {
+    FirestoreWorker.removeTransaction(transactionId: transaction!.id);
+    StoreProvider.of<AppState>(context).dispatch(
+        LoadTransactionsAction(await FirestoreWorker.getTransactionData()));
+    Navigator.pop(context);
   }
 }
